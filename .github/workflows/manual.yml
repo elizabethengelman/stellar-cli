@@ -1,11 +1,12 @@
-name: Ledger Emulator Tests (temp)
+name: Manual Tests
 on:
-  push:
-    branches:
-      - AhaLabs:fix/troubleshooting-emulator-tests
-  pull_request:
-    branches:
-      - AhaLabs:fix/troubleshooting-emulator-tests
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "Branch to run the workflow on"
+        required: true
+        default: "main"
+        type: string
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref_protected == 'true' && github.sha || github.ref }}
