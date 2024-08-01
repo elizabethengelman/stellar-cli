@@ -362,7 +362,6 @@ fn get_available_ports(n: usize) -> (u16, u16) {
             panic!("No more available ports");
         }
     }
-
     (ports[0], ports[1])
 }
 
