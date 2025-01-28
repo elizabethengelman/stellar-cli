@@ -44,7 +44,7 @@ pub enum Error {
 
 impl Args {
     pub async fn tx(&self, body: impl Into<xdr::OperationBody>) -> Result<xdr::Transaction, Error> {
-        let source_account = self.source_account()?;
+        let source_account = self.source_account().await?;
         let seq_num = self
             .config
             .next_sequence_number(source_account.clone().account_id())
@@ -109,8 +109,45 @@ impl Args {
         Ok(TxnEnvelopeResult::Res(txn_resp))
     }
 
-    pub fn source_account(&self) -> Result<xdr::MuxedAccount, Error> {
-        Ok(self.config.source_account()?)
+    pub async fn source_account(&self) -> Result<xdr::MuxedAccount, Error> {
+        Ok(self.config.source_account().await?)
+    }
+
+    pub fn resolve_muxed_address(
+        &self,
+        address: &UnresolvedMuxedAccount,
+    ) -> Result<xdr::MuxedAccount, Error> {
+        Ok(address.resolve_muxed_account_sync(&self.config.locator, self.config.hd_path)?)
+    }
+
+    pub fn resolve_account_id(
+        &self,
+        address: &UnresolvedMuxedAccount,
+    ) -> Result<xdr::AccountId, Error> {
+        Ok(address
+            .resolve_muxed_account_sync(&self.config.locator, self.config.hd_path)?
+            .account_id())
+    }
+
+    pub async fn add_op(
+        &self,
+        op_body: impl Into<xdr::OperationBody>,
+        tx_env: xdr::TransactionEnvelope,
+        op_source: Option<&address::UnresolvedMuxedAccount>,
+    ) -> Result<xdr::TransactionEnvelope, Error> {
+        let mut source_account = None;
+        if let Some(account) = op_source {
+            source_account = Some(
+                account
+                    .resolve_muxed_account(&self.config.locator, self.config.hd_path)
+                    .await?,
+            );
+        }
+        let op = xdr::Operation {
+            source_account,
+            body: op_body.into(),
+        };
+        Ok(super::xdr::add_op(tx_env, op)?)
     }
 
     pub fn resolve_muxed_address(
