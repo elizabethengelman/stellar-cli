@@ -32,13 +32,13 @@ jobs:
             target: x86_64-unknown-linux-gnu
           - os: ubuntu-20.04 # Use 20.04 to get an older version of glibc for increased compat
             target: aarch64-unknown-linux-gnu
-          - os: macos-14
-            target: aarch64-apple-darwin
-          - os: macos-14
-            target: x86_64-apple-darwin
-          - os: windows-latest
-            target: x86_64-pc-windows-msvc
-            ext: .exe
+          # - os: macos-14
+          #   target: aarch64-apple-darwin
+          # - os: macos-14
+          #   target: x86_64-apple-darwin
+          # - os: windows-latest
+          #   target: x86_64-pc-windows-msvc
+          #   ext: .exe
     runs-on: ${{ matrix.sys.os }}
     steps:
     - uses: actions/checkout@v4
@@ -69,12 +69,15 @@ jobs:
         echo "BUILD_WORKING_DIR=target/package/${{ matrix.crate.name }}-$VERSION" >> $GITHUB_ENV
 
     - name: Build
+      run: |
+        pkg-config --modversion openssl || echo "OpenSSL not found via pkg-config"
+
+    - name: Build
       env:
         CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER: aarch64-linux-gnu-gcc
       working-directory: ${{ env.BUILD_WORKING_DIR }}
       run: |
         sudo apt-get update && sudo apt-get -y install libdbus-1-dev libudev-dev pkg-config libssl-dev
-        pkg-config --modversion openssl || echo "OpenSSL not found via pkg-config"
         cargo build --target-dir="$GITHUB_WORKSPACE/target" --package ${{ matrix.crate.name }} --features opt --release --target ${{ matrix.sys.target }}
 
     - name: Build provenance for attestation (release only)
