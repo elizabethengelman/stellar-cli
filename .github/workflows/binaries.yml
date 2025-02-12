@@ -72,6 +72,8 @@ jobs:
       run: |
         echo $PKG_CONFIG_PATH
         pkg-config --modversion openssl || echo "OpenSSL not found via pkg-config"
+        pkg-config --variable pc_path pkg-config
+
 
     - name: Build
       env:
