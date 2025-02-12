@@ -90,6 +90,8 @@ jobs:
       env:
         CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER: aarch64-linux-gnu-gcc
         OPENSSL_DIR: /usr/lib/x86_64-linux-gnu/pkgconfig
+        OPENSSL_INCLUDE_DIR: /usr/include/openssl
+        OPENSSL_LIB_DIR: /usr/lib/x86_64-linux-gnu
       working-directory: ${{ env.BUILD_WORKING_DIR }}
       run: |
         cargo build --target-dir="$GITHUB_WORKSPACE/target" --package ${{ matrix.crate.name }} --features opt --release --target ${{ matrix.sys.target }}
