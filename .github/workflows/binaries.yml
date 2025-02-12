@@ -73,6 +73,15 @@ jobs:
         echo $PKG_CONFIG_PATH
         pkg-config --modversion openssl || echo "OpenSSL not found via pkg-config"
         pkg-config --variable pc_path pkg-config
+        echo "----"
+        find /usr/lib -name "openssl.pc"
+
+#         /usr/local/lib/x86_64-linux-gnu/pkgconfig - no
+# /usr/local/lib/pkgconfig - no
+# /usr/local/share/pkgconfig - no
+# /usr/lib/x86_64-linux-gnu/pkgconfig
+# /usr/lib/pkgconfig
+# /usr/share/pkgconfig
 
 
     - name: Build
