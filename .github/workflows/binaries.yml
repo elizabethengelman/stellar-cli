@@ -68,9 +68,9 @@ jobs:
         tar xvfz ${{ matrix.crate.name }}-$VERSION.crate
         echo "BUILD_WORKING_DIR=target/package/${{ matrix.crate.name }}-$VERSION" >> $GITHUB_ENV
 
-    - name: Build
-      run: |
-        pkg-config --modversion openssl || echo "OpenSSL not found via pkg-config"
+    - name: Set OpenSSL dir
+      if: matrix.sys.target == 'aarch64-unknown-linux-gnu'
+      run: echo "OPENSSL_DIR=/usr/include/openssl" >> $GITHUB_ENV
 
     - name: Build
       env:
