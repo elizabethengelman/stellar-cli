@@ -44,13 +44,6 @@ jobs:
     - uses: actions/checkout@v4
     - run: rustup update
     - run: rustup target add ${{ matrix.sys.target }}
-
-    - if: matrix.sys.target == 'aarch64-unknown-linux-gnu'
-      run: sudo apt-get update && sudo apt-get -y install gcc-aarch64-linux-gnu g++-aarch64-linux-gnu libudev-dev libdbus-1-dev
-    
-    - if: matrix.sys.target == 'x86_64-unknown-linux-gnu'
-      run: sudo apt-get update && sudo apt-get -y install libudev-dev libssl-dev
-
     - name: Setup vars
       run: |
         version="$(cargo metadata --format-version 1 --no-deps | jq -r '.packages[] | select(.name == "stellar-cli") | .version')"
@@ -69,11 +62,9 @@ jobs:
         echo "BUILD_WORKING_DIR=target/package/${{ matrix.crate.name }}-$VERSION" >> $GITHUB_ENV
 
     - name: Build
-      env:
-        CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER: aarch64-linux-gnu-gcc
       working-directory: ${{ env.BUILD_WORKING_DIR }}
       run: |
-        sudo apt-get update && sudo apt-get -y install libdbus-1-dev
+        sudo apt-get update && sudo apt-get -y install libdbus-1-dev libudev-dev
         cargo build --target-dir="$GITHUB_WORKSPACE/target" --package ${{ matrix.crate.name }} --features opt --release --target ${{ matrix.sys.target }}
 
     - name: Build provenance for attestation (release only)
